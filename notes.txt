@@ -1,0 +1,29 @@
+when we do 
+
+sam deploy --guided
+
+2 cloudformation stacks are created:
+
+aws-sam-cli-managed-default
+
+patientcheckout (app name stack - it creates all the resources mentioned within template.yaml)
+
+The sam deploy --guided process looks for a CloudFormation stack, rather than the bucket, 
+to decide whether or not to create a new bucket (S3 API doesn't give us a good way to search by tags, for example, and since S3 bucket names need to be globally unique this is the approach we need to take). If you're going to delete the S3 bucket, you'll also need to delete the associated stack.
+
+You can, of course, always provide your own S3 bucket via samconfig.toml or as a parameter to deployments.
+
+Okay I see. This is what happened to me:
+
+I previously deployed resources using sam
+I cleaned up my s3 buckets in my account and removed the bucket managed by the cloudformation stack of sam
+The cloudformation stack still existed. However, the bucket that was in the stack was deleted
+When using sam deploy --guided it told me it had found the necessary resources for deployment. Meaning, it found the stack
+However I couldn't deploy the stack. It gave me an unrelated error message, for example: Unable to upload artifact hello_world/ referenced by CodeUri parameter of HelloWorldFunction resource.
+I deleted the sam deployment stack that originally contained the bucket
+I ran sam deploy --guided. This recreated the sam deployment bucket and deploy worked.
+
+
+
+
+
